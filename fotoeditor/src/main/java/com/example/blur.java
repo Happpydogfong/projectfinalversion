@@ -6,28 +6,37 @@ public class blur implements Filter{
     @Override
     public BufferedImage applyFilter(BufferedImage img)
     {
-        BufferedImage blurImge = new BufferedImage(
-            img.getWidth()-2,img.getHeight()-2,BufferedImage.TYPE_BYTE_GRAY
-        );
-        int pix = 0;
-        for (int y = 0; y < blurImge.getHeight(); y++) {
-            for (int x = 0; x < blurImge.getWidth(); x++) {
-                pix = (int)(4*(img.getRGB(x+1, y+1) & 0xFF)
-                + 2*(img.getRGB(x+1, y) & 0xFF)
-                + 2*(img.getRGB(x+1, y+2) & 0xFF)
-                + 2*(img.getRGB(x, y+1) & 0xFF)
-                + 2*(img.getRGB(x+2, y+1) & 0xFF)
+        BufferedImage blurImage = new BufferedImage(
+                img.getWidth()-4, img.getHeight()-4, BufferedImage.TYPE_INT_ARGB);
+        for (int y =0; y <blurImage.getHeight(); y++) {
+            for (int x =0; x <blurImage.getWidth(); x++) {
+                int numPixels =0;
+                int r_sum =0, g_sum =0, b_sum =0, alpha_sum =0;
 
-                + (img.getRGB(x, y) & 0xFF)
-                + (img.getRGB(x, y+2) & 0xFF)
-                + (img.getRGB(x+2, y) & 0xFF)
-                + (img.getRGB(x+2, y+2) & 0xFF))/16;
-                int p = (255<<24) | (pix << 16) | (pix << 8) | pix;
-                blurImge.setRGB(x, y, p);
-                
+                for (int yOffSet = -2; yOffSet <=2; yOffSet++) {
+                    for (int xOffSet = -2; xOffSet <=2; xOffSet++) {
+                        int pixelX = x + xOffSet + 2; 
+                        int pixelY = y + yOffSet + 2; 
+
+                        if (pixelX >=0 && pixelX < img.getWidth() && pixelY >=0 && pixelY < img.getHeight()) {
+                            int pixel = img.getRGB(pixelX, pixelY);
+                            r_sum += (pixel >>16) & 0xFF;
+                            g_sum += (pixel >>8) & 0xFF;
+                            b_sum += pixel & 0xFF;
+                            alpha_sum += (pixel >>24) & 0xFF;
+                            numPixels++;
+                        }
+                    }
+                }
+                int red = r_sum / numPixels;
+                int green = g_sum / numPixels;
+                int blue = b_sum / numPixels;
+                int alpha = alpha_sum / numPixels;
+
+                int p = (alpha <<24) | (red <<16) | (green <<8) | blue;
+                blurImage.setRGB(x, y, p);
             }
-            
         }
-        return blurImge;
+        return blurImage;
     }
 }
