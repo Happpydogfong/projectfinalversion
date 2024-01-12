@@ -8,7 +8,6 @@ public class brithen implements Filter {
         brithen(int percentage){
             this.percentage = percentage;
         }
-
     @Override
     public BufferedImage applyFilter(BufferedImage img){
 
